@@ -10,12 +10,30 @@ import UIKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
+    
     var window: UIWindow?
 
 
-    func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-        // Override point for customization after application launch.
+    func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions:
+        [NSObject: AnyObject]?) -> Bool {
+        var isLaunchedFromQuickAction = false
+       
+        // Check if it's launched from Quick Action
+        if let shortcutItem = launchOptions?[UIApplicationLaunchOptionsShortcutItemKey] as? UIApplicationShortcutItem {
+            
+            isLaunchedFromQuickAction = true
+            // Handle the sortcutItem
+            handleQuickAction(shortcutItem)
+        } else {
+            self.window?.backgroundColor = UIColor.whiteColor()
+        }
+        
+        // Return false if the app was launched from a shortcut, so performAction... will not be called.
+        return !isLaunchedFromQuickAction
+    }
+    
+    func application(application: UIApplication, willFinishLaunchingWithOptions launchOptions: [NSObject : AnyObject]?) -> Bool {
+        
         return true
     }
 
@@ -41,6 +59,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
 
+    func application(application: UIApplication, performActionForShortcutItem shortcutItem: UIApplicationShortcutItem, completionHandler: (Bool) -> Void) {
+        
+        completionHandler(handleQuickAction(shortcutItem))
+        
+    }
+    
+    enum Shortcut: String {
+        case openBlue = "OpenBlue"
+    }
+    
+    func handleQuickAction(shortcutItem: UIApplicationShortcutItem) -> Bool {
+        
+        var quickActionHandled = false
+        let type = shortcutItem.type.componentsSeparatedByString(".").last!
+        if let shortcutType = Shortcut.init(rawValue: type) {
+            switch shortcutType {
+            case .openBlue:
+                self.window?.backgroundColor = UIColor(red: 151.0/255.0, green: 187.0/255.0, blue: 255.0/255.0, alpha: 1.0)
+                quickActionHandled = true
+            }
+        }
+        
+        return quickActionHandled
+    }
 
 }
 
